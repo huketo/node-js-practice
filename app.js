@@ -1,42 +1,23 @@
-const http = require("http");
-const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const bodyParser = require("body-parser");
 
-const server = http.createServer((req, res) => {
-  const url = req.url;
-  const method = req.method;
-  if (url === "/") {
-    res.setHeader("Content-Type", "text/html");
-    res.write(`<html>`);
-    res.write(`<head><title>My first Page</title></head>`);
-    res.write(
-      `<body><form action="/message" method="POST"><input type="text" name="message"/><button type="submit">Send</button></form></body>`
-    );
-    res.write("</html>");
-    return res.end();
-  }
-  if (url === "/message" && method === "POST") {
-    const body = [];
-    req.on("data", (chunk) => {
-      console.log(chunk);
-      body.push(chunk);
-    });
-    req.on("end", () => {
-      const parsedBody = Buffer.concat(body).toString();
-      const message = parsedBody.split("=")[1];
-      fs.writeFile("message.txt", message, (err) => {
-        res.statusCode = 302;
-        res.setHeader("Location", "/");
-        return res.end();
-      });
-    });
-  }
+const errorController = require("./controllers/error");
 
-  res.setHeader("Content-Type", "text/html");
-  res.write(`<html>`);
-  res.write(`<head><title>My first Page</title></head>`);
-  res.write(`<body><h1>Hello from my Node.js Server!</h1></body>`);
-  res.write("</html>");
-  res.end();
-});
+const app = express();
 
-server.listen(3000);
+app.set("view engine", "ejs");
+app.set("views", "views");
+
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
+
+app.use(errorController.get404);
+
+app.listen(3000, () => console.log("listen port 3000"));
