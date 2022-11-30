@@ -1,8 +1,6 @@
-// const Sequelize = require("sequelize");
-import { Sequelize } from "sequelize";
+import Sequelize from "sequelize";
 
-// const sequelize = require("../util/database");
-import { sequelize } from "../util/database";
+import { sequelize } from "../util/database.js";
 
 export const Product = sequelize.define("product", {
   id: {
@@ -28,5 +26,3 @@ export const Product = sequelize.define("product", {
     allowNull: false,
   },
 });
-
-// module.exports = Product;
