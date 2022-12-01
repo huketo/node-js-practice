@@ -1,7 +1,7 @@
-import { Product } from "../models/product.js";
+import Product from "../models/product.js";
 
 const getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/product-list", {
         prods: products,
@@ -14,7 +14,6 @@ const getProducts = (req, res, next) => {
 
 const getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // Product.findAll({where: {id: prodId}}).then().catch()
   Product.findById(prodId)
     .then((product) => {
       res.render("shop/product-detail", {
@@ -27,7 +26,7 @@ const getProduct = (req, res, next) => {
 };
 
 const getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("shop/index", {
         prods: products,
