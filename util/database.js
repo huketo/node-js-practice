@@ -1,6 +1,31 @@
-import { Sequelize } from "sequelize";
+import * as dotenv from "dotenv";
+import mongodb from "mongodb";
 
-export const sequelize = new Sequelize("node-complete", "root", "password", {
-  dialect: "mysql",
-  host: "192.168.120.197",
-});
+dotenv.config();
+
+const MongoClient = mongodb.MongoClient;
+const PASSWORD = process.env.PASSWORD;
+
+let _db;
+
+export const mongoConnect = (callback) => {
+  MongoClient.connect(
+    `mongodb+srv://huke:${PASSWORD}@cluster0.9inuqpu.mongodb.net/?retryWrites=true&w=majority`
+  )
+    .then((client) => {
+      console.log("MongoDB Connected!");
+      _db = client.db();
+      callback();
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const getDb = () => {
+  if (_db) {
+    return _db;
+  }
+  throw "No database found!";
+};
