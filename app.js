@@ -74,6 +74,6 @@ mongoose
     })
     // listrning
     app.listen(3000);
-    console.log("Listening port 3000");
+    console.log("http://localhost:3000");
   })
   .catch((err) => console.log(err));
