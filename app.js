@@ -1,79 +1,63 @@
-// modules
-import path from "path";
-import express from "express";
-import bodyParser from "body-parser";
-import { fileURLToPath } from "url";
-import * as dotenv from "dotenv";
+const path = require('path');
 
-// Database
-import mongoose from "mongoose";
+const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-// Controllers
-import errorController from "./controllers/error.js";
+require("dotenv").config()
 
-// Models
-import User from "./models/user.js";
+const MONGO_DB_ID = process.env.MONGO_DB_ID;
+const MONGO_DB_PASSWORD = process.env.MONGO_DB_PASSWORD
+
+const errorController = require('./controllers/error');
+const User = require('./models/user');
 
 const app = express();
 
-// env
-dotenv.config();
-const PASSWORD = process.env.PASSWORD;
+app.set('view engine', 'ejs');
+app.set('views', 'views');
 
-// Templete Engine
-app.set("view engine", "ejs");
-app.set("views", "views");
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
-// Routes
-import adminRoutes from "./routes/admin.js";
-import shopRoutes from "./routes/shop.js";
-
-// MiddleWare
-
-// Public SetPath
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// SetUser
 app.use((req, res, next) => {
-  User.findById("63887fdc8625de55ea4d1bb4")
-    .then((user) => {
+  User.findById('5bab316ce0a7c75f783cb8a8')
+    .then(user => {
       req.user = user;
       next();
     })
-    .catch((err) => console.log(err));
+    .catch(err => console.log(err));
 });
 
-// Set Route
-app.use("/admin", adminRoutes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
-// Set 404 page
 app.use(errorController.get404);
 
-// DB connect & listening
 mongoose
   .connect(
-    `mongodb+srv://huke:${PASSWORD}@cluster0.9inuqpu.mongodb.net/shop?retryWrites=true&w=majority`
+    `mongodb+srv://${MONGO_DB_ID}:${MONGO_DB_PASSWORD}@cluster0.9inuqpu.mongodb.net/?retryWrites=true&w=majority`
   )
-  .then((result) => {
-    // create user
+  .then(result => {
     User.findOne().then(user => {
       if (!user) {
         const user = new User({
-          name: "huke",
-          email: "naruto1458@naver.com",
+          name: 'Max',
+          email: 'max@test.com',
           cart: {
             items: []
-          },
-        })
-        user.save()
+          }
+        });
+        user.save();
       }
-    })
-    // listrning
+    });
     app.listen(3000);
-    console.log("http://localhost:3000");
   })
-  .catch((err) => console.log(err));
+  .catch(err => {
+    console.log(err);
+  });
